@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { http } from '../api/http';
 
-// 👇 [추가] 유저 및 보호자 정보 타입 정의
+//유저 및 보호자 정보 타입 정의
 interface Receiver {
   id: number;
   name: string;
@@ -27,40 +27,38 @@ export default function MedicineManage() {
   const { userId } = useParams();
   const navigate = useNavigate();
   
-  // 👇 [추가] 유저 정보 상태
+  //유저 정보 상태
   const [user, setUser] = useState<UserDetail | null>(null);
   const [medicines, setMedicines] = useState<Medicine[]>([]);
   const [loading, setLoading] = useState(true);
   
-  // 💊 약 등록 모달 상태
+  //약 등록 모달 상태
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newName, setNewName] = useState('');
   const [newDate, setNewDate] = useState(new Date().toISOString().split('T')[0]);
   const [newTime, setNewTime] = useState('09:00:00');
 
-  // 👨‍👩‍👧‍👦 수신자 추가 모달 상태
+  //수신자 추가 모달 상태
   const [isReceiverModalOpen, setIsReceiverModalOpen] = useState(false);
   const [receiverName, setReceiverName] = useState('');
   const [receiverId, setReceiverId] = useState('');
 
   useEffect(() => {
-    fetchData(); // 함수 이름 변경 (fetchMedicines -> fetchData)
+    fetchData();
   }, [userId]);
 
-  // 👇 [수정] 약 목록뿐만 아니라 유저 정보도 같이 가져옴
   const fetchData = async () => {
     try {
       setLoading(true);
-      // 1. 유저 정보(+보호자) 가져오기
+      //1. 유저 정보(+보호자) 가져오기
       const userRes = await http.get(`/users/${userId}`);
       setUser(userRes.data);
 
-      // 2. 약 목록 가져오기
-      const medRes = await http.get(`/users/${userId}/medicines`);
+      //2. 약 목록 가져오기
+      const medRes = await http.get(`/medicine-groups/users/${userId}/medicines`);
       setMedicines(medRes.data);
     } catch (err) {
       console.error(err);
-      // alert('데이터 로딩 실패');
     } finally {
       setLoading(false);
     }
@@ -69,7 +67,7 @@ export default function MedicineManage() {
   const handleDelete = async (medicineId: number) => {
     if (!window.confirm('정말 삭제하시겠습니까?')) return;
     try {
-      await http.delete(`/medicines/${medicineId}`);
+      await http.delete(`/medicine-groups/medicines/${medicineId}`);
       setMedicines(medicines.filter(m => m.id !== medicineId));
     } catch (e) {
       alert('삭제 실패!');
@@ -79,7 +77,7 @@ export default function MedicineManage() {
   const handleAddMedicine = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await http.post(`/users/${userId}/medicines`, {
+      await http.post(`/medicine-groups/users/${userId}/medicines`, {
         name: newName,
         scheduleType: 'DAILY',
         startDate: newDate,
@@ -94,7 +92,7 @@ export default function MedicineManage() {
     }
   };
 
-  // 👨‍👩‍👧‍👦 수신자 추가 핸들러
+  //수신자 추가 핸들러
   const handleAddReceiver = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -106,18 +104,18 @@ export default function MedicineManage() {
       setIsReceiverModalOpen(false);
       setReceiverName('');
       setReceiverId('');
-      fetchData(); // 👇 [추가] 새로고침해야 화면에 바로 뜸!
+      fetchData();
     } catch (e) {
       alert('추가 실패!');
     }
   };
 
-  // 🗑️ 수신자 삭제 핸들러
+  //수신자 삭제 핸들러
   const handleDeleteReceiver = async (receiverId: number) => {
     if (!window.confirm('정말 삭제하시겠습니까?')) return;
     try {
       await http.delete(`/users/${userId}/receivers/${receiverId}`);
-      // 화면 갱신
+      //화면갱신
       fetchData();
     } catch (e) {
       alert('삭제 실패!');
@@ -131,7 +129,7 @@ export default function MedicineManage() {
       {/* 헤더 */}
       <div className="w-full max-w-md flex justify-between items-center mb-6 mt-4">
         <Link to="/" className="text-gray-500 hover:text-gray-800 text-lg">← 뒤로가기</Link>
-        {/* 👇 제목에 유저 이름 표시 */}
+        {/* 제목에 유저 이름 표시 */}
         <h1 className="text-2xl font-bold text-gray-800">{user?.name}님 관리</h1>
         <div className="w-8"></div>
       </div>
@@ -159,7 +157,7 @@ export default function MedicineManage() {
                        <span className="text-xs text-gray-400">({receiver.chatId})</span>
                    </div>
                    
-                   {/* 👇 [추가] 오른쪽 삭제 버튼 (마우스 올리면 보임) */}
+                   {/* 오른쪽 삭제 버튼 (마우스 올리면 보임) */}
                    <button 
                        onClick={() => handleDeleteReceiver(receiver.id)}
                        className="text-red-300 hover:text-red-500 text-sm px-2 hidden group-hover:block transition"
@@ -210,7 +208,7 @@ export default function MedicineManage() {
         <span className="text-2xl">+</span>
       </button>
 
-      {/* 💊 약 등록 모달 (기존 동일) */}
+      {/* 약 등록 모달 */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl">
@@ -230,7 +228,7 @@ export default function MedicineManage() {
         </div>
       )}
 
-      {/* 수신자 추가 모달 (기존 동일) */}
+      {/* 수신자 추가 모달 */}
       {isReceiverModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl">
