@@ -188,7 +188,7 @@ export default function MedicineManage() {
             /* 텔레그램 유저일 경우 레이아웃 균형을 위해 빈 공간 유지 */
             <div className="w-16"></div> 
           )}
-        <h1 className="text-2xl font-bold text-gray-800">{user?.name}님 관리</h1>
+        <h1 className="text-2xl font-bold text-gray-800">{user?.name}님 복용 관리</h1>
         <div className="w-8"></div>
       </div>
 
