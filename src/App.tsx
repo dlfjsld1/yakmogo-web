@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Link, useNavigate } from 'react-router-do
 import UserRegister from './pages/UserRegister';
 import MedicineManage from './pages/MedicineManage';
 import { http } from './api/http';
+import TelegramLoginHandler from './pages/TelegramLoginHandler';
 
 interface User {
   id: number;
@@ -27,8 +28,9 @@ function Home() {
   const handleLogout = () => {
     if (window.confirm('로그아웃 하시겠습니까?')) {
       localStorage.removeItem('adminPassword');
-      //새로고침
-      window.location.reload(); 
+      localStorage.removeItem('magicToken');
+      
+      window.location.href = '/';
     }
   };
 
@@ -72,10 +74,8 @@ function Home() {
             <span className="text-xl font-bold text-gray-800">{user.name}</span>
             
             <div className="flex items-center gap-3">
-              {/* 화살표: 평소에 보임, 호버시 숨김 */}
               <span className="text-gray-400 group-hover:hidden">&gt;</span>
               
-              {/* 삭제 버튼: 평소에 숨김(hidden), 호버시 나타남(group-hover:block) */}
               <button 
                 onClick={(e) => handleDeleteUser(e, user.id)}
                 className="hidden group-hover:block text-red-400 hover:text-red-600 font-medium px-2 py-1 border border-red-100 rounded bg-white hover:bg-red-50 transition z-10"
@@ -99,10 +99,16 @@ function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [inputPassword, setInputPassword] = useState('');
 
+  //현재 URL이 텔레그램 로그인 경로인지 확인
+  const isTelegramRoute = window.location.pathname.startsWith('/tg-login');
+
   //암호검사
   useEffect(() => {
     const savedPassword = localStorage.getItem('adminPassword');
-    if (savedPassword) {
+    const magicToken = localStorage.getItem('magicToken');
+    
+    // 둘 중 하나라도 있으면 통과
+    if (savedPassword || magicToken) {
       setIsAuthenticated(true);
     }
   }, []);
@@ -126,20 +132,19 @@ function App() {
     }
   };
 
-  // 암호 없으면 로그인 화면만 보여줌 (라우터 접근 불가)
-  if (!isAuthenticated) {
+  //암호 없거나 텔레그램 경로가 아니면 로그인 화면만 보여줌 (라우터 접근 불가)
+  if (!isAuthenticated && !isTelegramRoute) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
         <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-sm border border-gray-200">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-blue-600 mb-2">💊 약모고</h1>
-            <p className="text-gray-400">가족 관리자 인증</p>
+            <h1 className="text-3xl font-bold text-blue-600 mb-2">💊관리자 인증</h1>
           </div>
           
           <form onSubmit={handleLogin} className="space-y-4">
             <input
               type="password"
-              placeholder="가족 암호 입력"
+              placeholder="관리자 암호 입력"
               value={inputPassword}
               onChange={(e) => setInputPassword(e.target.value)}
               className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 outline-none transition text-lg"
@@ -160,10 +165,10 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={isAuthenticated ? <Home /> : <TelegramLoginHandler />} />
         <Route path="/register" element={<UserRegister />} />
-        {/* 새로운 경로 추가 */}
         <Route path="/users/:userId/medicines" element={<MedicineManage />} />
+        <Route path="/tg-login" element={<TelegramLoginHandler />} />
       </Routes>
     </BrowserRouter>
   );

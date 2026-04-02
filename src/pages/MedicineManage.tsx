@@ -27,6 +27,9 @@ export default function MedicineManage() {
   const { userId } = useParams();
   const navigate = useNavigate();
   
+  //관리자 여부 확인
+  const isAdmin = !!localStorage.getItem('adminPassword');
+  
   //유저 정보 상태
   const [user, setUser] = useState<UserDetail | null>(null);
   const [medicines, setMedicines] = useState<Medicine[]>([]);
@@ -38,7 +41,7 @@ export default function MedicineManage() {
   const [newDate, setNewDate] = useState(new Date().toISOString().split('T')[0]);
   const [newTime, setNewTime] = useState('09:00:00');
   
-  // 🌟 동적 스케줄을 위한 새로운 State
+  // 동적 스케줄을 위한 새로운 State
   const [scheduleType, setScheduleType] = useState('DAILY');
   const [scheduleValue, setScheduleValue] = useState('');
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
@@ -84,21 +87,21 @@ export default function MedicineManage() {
     }
   };
 
-  // 🌟 요일 토글 함수
+  // 요일 토글 함수
   const toggleDay = (dayId: string) => {
     setSelectedDays(prev => 
       prev.includes(dayId) ? prev.filter(d => d !== dayId) : [...prev, dayId]
     );
   };
 
-  // 🌟 스케줄 타입 변경 시 하위 값 초기화
+  // 스케줄 타입 변경 시 하위 값 초기화
   const handleTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setScheduleType(e.target.value);
     setScheduleValue('');
     setSelectedDays([]);
   };
 
-  // 🌟 새 약 등록 (동적 데이터 변환 추가)
+  // 새 약 등록 (동적 데이터 변환 추가)
   const handleAddMedicine = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -174,7 +177,17 @@ export default function MedicineManage() {
     <div className="min-h-screen bg-gray-50 p-6 flex flex-col items-center pb-24">
       {/* 헤더 */}
       <div className="w-full max-w-md flex justify-between items-center mb-6 mt-4">
-        <Link to="/" className="text-gray-500 hover:text-gray-800 text-lg">← 뒤로가기</Link>
+        {isAdmin ? (
+            <button 
+              onClick={() => navigate('/')}
+              className="text-gray-500 hover:text-blue-600 font-bold transition"
+            >
+              ← 홈으로
+            </button>
+          ) : (
+            /* 텔레그램 유저일 경우 레이아웃 균형을 위해 빈 공간 유지 */
+            <div className="w-16"></div> 
+          )}
         <h1 className="text-2xl font-bold text-gray-800">{user?.name}님 관리</h1>
         <div className="w-8"></div>
       </div>
@@ -228,7 +241,7 @@ export default function MedicineManage() {
               <div>
                 <h3 className="text-lg font-bold text-gray-800">{med.name}</h3>
                 <p className="text-sm text-blue-500 font-medium mt-1">
-                  {/* 🌟 리스트에서 스케줄 타입에 따라 표시 다르게 */}
+                  {/* 리스트에서 스케줄 타입에 따라 표시 다르게 */}
                   ⏰ {med.intakeTime?.substring(0, 5)} ({med.scheduleType === 'DAILY' ? '매일' : med.scheduleType === 'WEEKLY' ? '지정 요일' : '간격 복용'})
                 </p>
               </div>
@@ -251,7 +264,6 @@ export default function MedicineManage() {
         <span className="text-2xl">+</span>
       </button>
 
-      {/* 🌟 싹 바뀐 약 등록 모달 🌟 */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl overflow-y-auto max-h-[90vh]">
@@ -341,7 +353,6 @@ export default function MedicineManage() {
         </div>
       )}
 
-      {/* 수신자 추가 모달은 기존과 동일하게 아래에 유지... */}
       {isReceiverModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl">
