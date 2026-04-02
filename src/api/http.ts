@@ -1,7 +1,8 @@
 import axios from 'axios';
 
 export const http = axios.create({
-  baseURL: 'http://localhost:8080/api/v1',
+  //TODO: 나중에 빌드할 때는 배포 환경에 따라 개발용 baseURL과 운영용 baseURL을 나누어야 할 수도 있으니 확인할 것
+  baseURL: '/api/v1',
 });
 
 //나갈 때 비밀번호 붙이기
