@@ -21,26 +21,27 @@ Routing: React Router (SPA 라우팅)
 🚀 로컬 개발 (Development)
 
 로컬 개발 시에는 Vite 개발 서버를 구동하여 작업합니다. (기본 포트: 5173)
-
+```bash
 # 의존성 설치
 npm install
 
 # 로컬 개발 서버 실행
 npm run dev
-
+```
 
 📦 빌드 및 통합 (Build & Integration)
 
 본 프로젝트는 백엔드와 통합하여 배포해야 합니다.
 
 프론트엔드 프로젝트를 빌드합니다.
-
+```bash
 npm run build
-
+```
 
 생성된 dist 폴더 내부의 모든 파일과 폴더를 복사합니다.
 
 백엔드 프로젝트의 src/main/resources/static/ 경로에 붙여넣기 합니다. (기존 파일이 있다면 덮어쓰기)
+
 주의: 백엔드의 .gitignore에 해당 경로가 추가되어 있어야 불필요한 빌드 파일 커밋을 막을 수 있습니다.
 
 백엔드 서버 설정 및 전체 배포 가이드는 백엔드 레포지토리의 README를 참고해주세요.
