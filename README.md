@@ -1,4 +1,4 @@
-# 💊 약손 (Yakmogo) - Frontend
+# 💊 약모고 (Yakmogo) - Frontend
 
 가족들의 투약 관리를 위해 만들어진 '약손' 프로젝트의 프론트엔드(SPA) 레포지토리입니다.
 
