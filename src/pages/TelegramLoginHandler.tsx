@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { http } from '../api/http';
 
 interface ManagedUser {
@@ -9,15 +9,14 @@ interface ManagedUser {
 
 export default function TelegramLoginHandler() {
   const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
+  const chatId = searchParams.get('chatId');
   const [users, setUsers] = useState<ManagedUser[]>([]);
-  const [error, setError] = useState('');
+  const [error, setError] = useState(() => (
+    chatId ? '' : '잘못된 접근입니다. 텔레그램을 통해 접속해주세요.'
+  ));
 
   useEffect(() => {
-    const chatId = searchParams.get('chatId');
-
     if (!chatId) {
-      setError('잘못된 접근입니다. 텔레그램을 통해 접속해주세요.');
       return;
     }
 
@@ -37,13 +36,13 @@ export default function TelegramLoginHandler() {
         } else {
           setUsers(managedUsers);
         }
-      } catch (err) {
+      } catch {
         setError('등록되지 않은 사용자입니다. 관리자에게 문의하세요.');
       }
     };
 
     login();
-  }, [searchParams, navigate]);
+  }, [chatId]);
 
   if (error) return <div className="p-10 text-center text-red-500 font-bold">{error}</div>;
 

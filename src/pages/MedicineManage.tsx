@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useCallback, useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { http } from '../api/http';
 
 //유저 및 보호자 정보 타입 정의
@@ -58,11 +58,7 @@ export default function MedicineManage() {
     { id: 'Friday', label: '금' }, { id: 'Saturday', label: '토' }, { id: 'Sunday', label: '일' }
   ];
 
-  useEffect(() => {
-    fetchData();
-  }, [userId]);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       setLoading(true);
       const userRes = await http.get(`/users/${userId}`);
@@ -75,14 +71,18 @@ export default function MedicineManage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [userId]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const handleDelete = async (medicineId: number) => {
     if (!window.confirm('정말 삭제하시겠습니까?')) return;
     try {
       await http.delete(`/medicine-groups/medicines/${medicineId}`);
       setMedicines(medicines.filter(m => m.id !== medicineId));
-    } catch (e) {
+    } catch {
       alert('삭제 실패!');
     }
   };
@@ -139,7 +139,7 @@ export default function MedicineManage() {
       setScheduleValue('');
       setSelectedDays([]);
       fetchData();
-    } catch (e) {
+    } catch {
       alert('등록 실패!');
     }
   };
@@ -156,7 +156,7 @@ export default function MedicineManage() {
       setReceiverName('');
       setReceiverId('');
       fetchData();
-    } catch (e) {
+    } catch {
       alert('추가 실패!');
     }
   };
@@ -166,7 +166,7 @@ export default function MedicineManage() {
     try {
       await http.delete(`/users/${userId}/receivers/${receiverId}`);
       fetchData();
-    } catch (e) {
+    } catch {
       alert('삭제 실패!');
     }
   };
