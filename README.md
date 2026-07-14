@@ -42,3 +42,15 @@ npm run build
 
 ---
 *백엔드 서버 설정 및 전체 배포 가이드는 백엔드 레포지토리의 README를 참고해주세요.*
+
+## ✅ 품질 검사
+
+화면을 변경한 뒤에는 다음 세 검사를 모두 실행합니다.
+
+```bash
+npm run lint
+npm test
+npm run build
+```
+
+`npm test`는 Vitest와 React Testing Library를 사용합니다. 테스트는 CSS 모양보다 사용자가 인식하는 이름·역할과 실제 상호작용을 기준으로 작성합니다. Windows PowerShell에서 실행 정책 때문에 `npm.ps1`이 차단되면 같은 명령을 `npm.cmd`로 실행할 수 있습니다.

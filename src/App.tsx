@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route, Link, useNavigate } from 'react-router-dom';
 import UserRegister from './pages/UserRegister';
 import MedicineManage from './pages/MedicineManage';
-import { http } from './api/http';
+import { AUTH_NOTICE_KEY, http } from './api/http';
 import TelegramLoginHandler from './pages/TelegramLoginHandler';
 
 interface User {
@@ -96,6 +96,11 @@ function App() {
     Boolean(localStorage.getItem('adminPassword') || localStorage.getItem('magicToken'))
   ));
   const [inputPassword, setInputPassword] = useState('');
+  const [authNotice] = useState(() => {
+    const message = sessionStorage.getItem(AUTH_NOTICE_KEY);
+    sessionStorage.removeItem(AUTH_NOTICE_KEY);
+    return message;
+  });
 
   //현재 URL이 텔레그램 로그인 경로인지 확인
   const isTelegramRoute = window.location.pathname.startsWith('/tg-login');
@@ -114,7 +119,6 @@ function App() {
       
     } catch {
       //실패
-      console.error("로그인 실패");
       localStorage.removeItem('adminPassword');
     }
   };
@@ -127,6 +131,12 @@ function App() {
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-blue-600 mb-2">💊관리자 인증</h1>
           </div>
+
+          {authNotice && (
+            <p role="alert" className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+              {authNotice}
+            </p>
+          )}
           
           <form onSubmit={handleLogin} className="space-y-4">
             <input
