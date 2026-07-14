@@ -21,7 +21,9 @@ http.interceptors.request.use((config) => {
 http.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response && error.response.status == 401) {
+    const isAuthenticationRequest = error.config?.url?.startsWith('/auth/');
+
+    if (error.response?.status === 401 && !isAuthenticationRequest) {
 
       //토큰을 지우기 전에 텔레그램 유저인지 확인
       const isTelegramUser = !!localStorage.getItem('magicToken') && !localStorage.getItem('adminPassword');
@@ -36,6 +38,8 @@ http.interceptors.response.use(
         alert('관리자 암호가 틀렸거나 만료되었습니다.');
         window.location.href = '/';
       }
+    } else if (error.response?.status === 403) {
+      alert('이 작업을 수행할 권한이 없습니다.');
     }
     return Promise.reject(error);
   }

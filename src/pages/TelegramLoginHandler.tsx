@@ -9,21 +9,23 @@ interface ManagedUser {
 
 export default function TelegramLoginHandler() {
   const [searchParams] = useSearchParams();
-  const chatId = searchParams.get('chatId');
+  const proof = searchParams.get('proof');
   const [users, setUsers] = useState<ManagedUser[]>([]);
   const [error, setError] = useState(() => (
-    chatId ? '' : '잘못된 접근입니다. 텔레그램을 통해 접속해주세요.'
+    proof ? '' : '잘못된 접근입니다. 텔레그램의 최신 알림 링크를 통해 접속해주세요.'
   ));
 
   useEffect(() => {
-    if (!chatId) {
+    if (!proof) {
       return;
     }
+
+	window.history.replaceState({}, '', '/tg-login');
 
     const login = async () => {
       try {
         // 1. 백엔드 인증 API 호출
-        const res = await http.get(`/auth/telegram?chatId=${chatId}`);
+        const res = await http.post('/auth/telegram', { proof });
         const { token, users: managedUsers } = res.data;
 
         // 2. 받은 토큰 저장 (추후 인터셉터에서 사용)
@@ -37,12 +39,12 @@ export default function TelegramLoginHandler() {
           setUsers(managedUsers);
         }
       } catch {
-        setError('등록되지 않은 사용자입니다. 관리자에게 문의하세요.');
+        setError('로그인 링크가 만료됐거나 유효하지 않습니다. 텔레그램의 최신 알림을 이용해주세요.');
       }
     };
 
     login();
-  }, [chatId]);
+  }, [proof]);
 
   if (error) return <div className="p-10 text-center text-red-500 font-bold">{error}</div>;
 
