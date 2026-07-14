@@ -1,5 +1,7 @@
 import axios from 'axios';
 
+export const AUTH_NOTICE_KEY = 'yakmogo-auth-notice';
+
 export const http = axios.create({
   //TODO: 나중에 빌드할 때는 배포 환경에 따라 개발용 baseURL과 운영용 baseURL을 나누어야 할 수도 있으니 확인할 것
   baseURL: '/api/v1',
@@ -32,14 +34,12 @@ http.interceptors.response.use(
       localStorage.removeItem('magicToken');
 
       if (isTelegramUser) {
-        alert('인증이 만료되었습니다. 텔레그램을 통해 다시 접속해주세요.');
+        sessionStorage.setItem(AUTH_NOTICE_KEY, '인증이 만료되었습니다. 텔레그램을 통해 다시 접속해 주세요.');
         window.location.href = '/tg-login'; 
       } else {
-        alert('관리자 암호가 틀렸거나 만료되었습니다.');
+        sessionStorage.setItem(AUTH_NOTICE_KEY, '관리자 인증이 만료되었습니다. 다시 로그인해 주세요.');
         window.location.href = '/';
       }
-    } else if (error.response?.status === 403) {
-      alert('이 작업을 수행할 권한이 없습니다.');
     }
     return Promise.reject(error);
   }
