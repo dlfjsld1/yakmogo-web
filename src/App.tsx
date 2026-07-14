@@ -15,14 +15,10 @@ function Home() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchUsers();
-  }, []);
-
-  const fetchUsers = () => {
     http.get('/users')
       .then(res => setUsers(res.data))
       .catch(err => console.error(err));
-  };
+  }, []);
 
   //로그아웃 핸들러
   const handleLogout = () => {
@@ -46,7 +42,7 @@ function Home() {
       
       // 목록 갱신
       setUsers(users.filter(u => u.id !== userId));
-    } catch (error) {
+    } catch {
       alert('삭제 실패!');
     }
   };
@@ -96,22 +92,13 @@ function Home() {
 }
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(() => (
+    Boolean(localStorage.getItem('adminPassword') || localStorage.getItem('magicToken'))
+  ));
   const [inputPassword, setInputPassword] = useState('');
 
   //현재 URL이 텔레그램 로그인 경로인지 확인
   const isTelegramRoute = window.location.pathname.startsWith('/tg-login');
-
-  //암호검사
-  useEffect(() => {
-    const savedPassword = localStorage.getItem('adminPassword');
-    const magicToken = localStorage.getItem('magicToken');
-    
-    // 둘 중 하나라도 있으면 통과
-    if (savedPassword || magicToken) {
-      setIsAuthenticated(true);
-    }
-  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -125,7 +112,7 @@ function App() {
       //성공시
       setIsAuthenticated(true);
       
-    } catch (error) {
+    } catch {
       //실패
       console.error("로그인 실패");
       localStorage.removeItem('adminPassword');
